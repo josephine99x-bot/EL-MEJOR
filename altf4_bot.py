@@ -9,15 +9,17 @@ CHANNEL_ID = 1479700883444076596
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# CONFIGURACION EVENTOS
-blood_start = (4, 0)   # primer Blood del dia
-devil_start = (4, 30)  # primer Devil del dia
-interval = 120         # cada 2 horas
+blood_start = (4, 0)
+devil_start = (4, 30)
+interval = 120
 
 king_hour = 20
 
+def now_local():
+    return datetime.utcnow() - timedelta(hours=3)
+
 def next_event(start_hour, start_minute):
-    now = datetime.now()
+    now = now_local()
     start_today = now.replace(hour=start_hour, minute=start_minute, second=0, microsecond=0)
 
     while start_today < now:
@@ -33,20 +35,17 @@ async def on_ready():
 @tasks.loop(minutes=1)
 async def check_events():
     channel = bot.get_channel(CHANNEL_ID)
-    now = datetime.now()
+    now = now_local()
 
     blood_next = next_event(*blood_start)
     devil_next = next_event(*devil_start)
 
-    # BLOOD CASTLE
-    if (blood_next - now).total_seconds() <= 600 and (blood_next - now).total_seconds() > 540:
+    if 540 < (blood_next - now).total_seconds() <= 600:
         await channel.send("@everyone ⚔️ Blood Castle en 10 minutos!")
 
-    # DEVIL SQUARE
-    if (devil_next - now).total_seconds() <= 600 and (devil_next - now).total_seconds() > 540:
+    if 540 < (devil_next - now).total_seconds() <= 600:
         await channel.send("@everyone 👿 Devil Square en 10 minutos!")
 
-    # KING OF MU
     if now.hour == 19 and now.minute == 50:
         await channel.send("@everyone 👑 King of MU comienza en 10 minutos!")
 
