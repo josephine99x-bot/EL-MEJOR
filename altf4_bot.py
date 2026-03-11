@@ -1,5 +1,7 @@
 import os
 import discord
+import random
+import asyncio
 from discord.ext import tasks, commands
 from datetime import datetime, timedelta
 
@@ -48,5 +50,31 @@ async def check_events():
 
     if now.hour == 19 and now.minute == 50:
         await channel.send("@everyone 👑 King of MU comienza en 10 minutos!")
+@bot.command()
+async def ruleta(ctx, *jugadores):
+
+    if len(jugadores) < 2:
+        await ctx.send("⚠️ Tenés que mencionar al menos 2 jugadores.")
+        return
+
+    participantes = list(jugadores)
+
+    mensaje = await ctx.send("🎰 **Girando la ruleta ALT F4...**")
+
+    for i in range(5):
+        elegido = random.choice(participantes)
+        await mensaje.edit(content=f"🎰 Girando... {elegido}")
+        await asyncio.sleep(1)
+
+    ganador = random.choice(participantes)
+
+    await mensaje.edit(content=f"""
+🎰 **RULETA ALT F4**
+
+Participantes:
+{' '.join(participantes)}
+
+🏆 **GANADOR:** {ganador}
+""")
 
 bot.run(TOKEN)
